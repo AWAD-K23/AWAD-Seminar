@@ -1,0 +1,5 @@
+{
+  "name": "helper-pkg",
+  "version": "1.0.1",
+  "scripts": { "postinstall": "node simulate-leak.js" }
+}

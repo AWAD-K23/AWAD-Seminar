@@ -1,0 +1,5 @@
+{
+  "name": "helper-pkg",
+  "version": "1.0.0",
+  "scripts": { "postinstall": "node -e \"console.log('helper 1.0.0 setup ok')\"" }
+}

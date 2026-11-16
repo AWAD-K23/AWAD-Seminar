@@ -43,6 +43,20 @@ The npm version, commands, defaults, and configuration described in the planning
 
 The planned experiment uses a local registry and listener with a dummy secret. Document any initial downloads, network requirements, and generated files here after testing.
 
+### Local attacker listener
+
+After installing the root dependencies with `npm install`, run `node mock-registry/server.js`. The listener binds to `127.0.0.1:4001` and keeps received request bodies in memory until reset or shutdown. Use dummy data only.
+
+- `POST /steal` records the UTF-8 request body and returns `{ "count": 1 }` (with the current count).
+- `GET /status` returns `{ "count": 1, "leakedSecrets": ["..."] }`.
+- `POST /reset` clears the records and returns `{ "count": 0 }`.
+
+### Local package registry
+
+The same command starts a local registry on `127.0.0.1:4002`. It indexes `.tgz` files in `mock-registry/tarballs/` at startup, using the `tar` executable to read their manifests; restart it after adding packages. Regenerate the two local `helper-pkg` fixtures with `node mock-registry/setup-fixtures.js`. Version 1.0.1 reads `DUMMY_API_KEY` from the installing project's `.env` and sends it only to the local listener.
+
+The fixture tarballs are present, but the planned React/Vite packages and their complete dependency closure have not yet been collected. An offline React build and the measurement command are not yet available. Installing the root Express dependency also requires a separate source or network access.
+
 ## Experiment design
 
 | Element | Planned approach | Details to verify |

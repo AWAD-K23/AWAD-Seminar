@@ -62,3 +62,27 @@ Used AI for the frontend. Fixed some things.
 It says nothing we can check, and nothing that helps you at the oral. If a task
 took you three hours of argument with a tool, that story is worth one line — it
 is evidence you were in control.
+
+## 2026-11-16 — Seminar README
+
+- Tool: Codex (ChatGPT).
+- Asked for: Review the seminar documents and prepare a structured README with placeholders for information and results to be completed later.
+- Kept: The research question, planned experiment, reproduction outline, and results placeholders in `README.md`.
+- Changed: Marked the measurement as not yet runnable and npm version and policy claims as needing official-source verification.
+- Rejected: No specific content was rejected in this task; no experiment was run.
+
+## 2026-11-16 — Local attacker listener
+
+- Tool: Codex (ChatGPT).
+- Asked for: Implement the local attacker listener specified in Piece A of `docs/PLAN.md`, convert it to Express, and document its routes with explanatory comments.
+- Kept: The local `/steal`, `/status`, and `/reset` endpoints in `mock-registry/server.js`.
+- Changed: Replaced the assistant's initial Node HTTP implementation with Express at the user's request; the user installed Express after the sandbox could not download it.
+- Rejected: The initial HTTP implementation was replaced to use the requested framework. Codex checked collection, status, reset, oversized requests, and unknown routes; these were temporary checks, not saved test files.
+
+## 2026-11-16 — Local registry and fixtures
+
+- Tool: Codex (ChatGPT).
+- Asked for: Implement the local npm registry specified in Piece B of `docs/PLAN.md`, document and format the code, and simplify its structure for readers unfamiliar with the project.
+- Kept: The local tarball registry, two `helper-pkg` fixture versions, and `mock-registry/setup-fixtures.js` for packing them.
+- Changed: Extracted tarball indexing into `indexTarballs()` and reformatted and commented the scripts. Codex verified a local npm install of `helper-pkg@1.0.1` with install scripts disabled, then ran its fixture script separately and checked the dummy value reached the listener. It also checked the listener and registry routes after the refactor.
+- Rejected: The original, harder-to-read registry layout was replaced at the user's request. The registry's numeric string sort is only an approximation of semantic version ordering; it has not been corrected or tested for complex versions. The React/Vite dependency closure and benchmark remain unfinished, and npm policy claims still require official-source verification.

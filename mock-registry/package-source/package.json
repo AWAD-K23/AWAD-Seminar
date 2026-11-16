@@ -1,0 +1,14 @@
+{
+  "name": "seminar-registry-package-source",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Pinned source dependencies for the local seminar registry.",
+  "dependencies": {
+    "esbuild": "0.28.2",
+    "husky": "9.1.7",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "sharp": "0.35.5",
+    "vite": "8.3.8"
+  }
+}

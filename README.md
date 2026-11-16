@@ -7,7 +7,7 @@
 
 ## Research question
 
-In a 25-package React build, what percentage of simulated install-script attacks does version-pinned `allowScripts` block compared with an unpinned allowlist, and what are the costs in install and build time (ms) and re-approvals (count)?
+In a React build, what percentage of simulated install-script attacks does version-pinned `allowScripts` block compared with an unpinned allowlist, and what are the costs in install and build time (ms) and re-approvals (count)?
 
 The study will compare an unpinned package approval with an approval tied to an exact version. Both conditions will use the same project, dependency update, machine, and cache procedure. The intended scenarios include a compromised package update, a direct `preinstall`, and a transitive `postinstall`. The exact scope and policy behavior must be verified before measurement.
 
@@ -55,7 +55,20 @@ After installing the root dependencies with `npm install`, run `node mock-regist
 
 The same command starts a local registry on `127.0.0.1:4002`. It indexes `.tgz` files in `mock-registry/tarballs/` at startup, using the `tar` executable to read their manifests; restart it after adding packages. Regenerate the two local `helper-pkg` fixtures with `node mock-registry/setup-fixtures.js`. Version 1.0.1 reads `DUMMY_API_KEY` from the installing project's `.env` and sends it only to the local listener.
 
-The fixture tarballs are present, but the planned React/Vite packages and their complete dependency closure have not yet been collected. An offline React build and the measurement command are not yet available. Installing the root Express dependency also requires a separate source or network access.
+#### Online dependency setup
+
+Run these commands from the repository root with Node.js, npm, `tar`, and internet access:
+
+```sh
+npm install
+node mock-registry/setup-fixtures.js
+node mock-registry/download-packages.js
+node mock-registry/server.js
+```
+
+The download script uses the pinned `mock-registry/package-source/package-lock.json`, including transitive dependencies and optional packages compatible with the current operating system and CPU. It checks each archive against the lockfile's SHA-512 integrity value and reuses verified downloads if interrupted. Downloaded archives are ignored by Git; the two small, already tracked fixture archives remain in the repository. Run setup on each target platform before starting the registry, and restart the registry after changing its tarballs.
+
+This setup requires internet access. The planned measurement is intended to use only the local registry after setup, but an offline React build and the measurement command have not yet been implemented or verified. The six pinned direct packages (`react`, `react-dom`, `vite`, `esbuild`, `sharp`, and `husky`) and their dependency tree are a starting set, not yet a validated benchmark workload. The original 25-package plan and its assumptions about install scripts need updating and verification.
 
 ## Experiment design
 

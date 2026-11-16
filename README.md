@@ -14,7 +14,7 @@ The study will compare an unpinned package approval with an approval tied to an 
 ## Status and prerequisites
 
 - Node.js version: [Version and installation instructions]
-- npm version: [Verified version and installation instructions]
+- npm version: 12.2.2
 - Operating system and other requirements: [Details]
 - Local ports and required permissions: [Details]
 - Official documentation and release notes: [Links and access dates]
@@ -68,7 +68,19 @@ node mock-registry/server.js
 
 The download script uses the pinned `mock-registry/package-source/package-lock.json`, including transitive dependencies and optional packages compatible with the current operating system and CPU. It checks each archive against the lockfile's SHA-512 integrity value and reuses verified downloads if interrupted. Downloaded archives are ignored by Git; the two small, already tracked fixture archives remain in the repository. Run setup on each target platform before starting the registry, and restart the registry after changing its tarballs.
 
-This setup requires internet access. The planned measurement is intended to use only the local registry after setup, but an offline React build and the measurement command have not yet been implemented or verified. The six pinned direct packages (`react`, `react-dom`, `vite`, `esbuild`, `sharp`, and `husky`) and their dependency tree are a starting set, not yet a validated benchmark workload. The original 25-package plan and its assumptions about install scripts need updating and verification.
+This setup requires internet access. The planned measurement is intended to use only the local registry after setup, but the measurement command has not yet been implemented. The seven pinned direct packages (`react`, `react-dom`, `vite`, `@vitejs/plugin-react`, `esbuild`, `sharp`, and `husky`) and their dependency tree are a starting set, not yet a validated benchmark workload. The original 25-package plan and its assumptions about install scripts need updating and verification.
+
+### Sample app smoke test
+
+With the local registry running, use a second terminal from the repository root:
+
+```sh
+cd sample-app
+npm install --registry=http://127.0.0.1:4002 --cache ../.npm-cache/sample-test --ignore-scripts --no-audit --no-fund
+npm run build
+```
+
+The app was generated from the Vite React template and adapted to use the pinned local package set; the template's lint and type packages were omitted to keep the workload small. It uses only a dummy value in its `.env`; never put real secrets there. Its `helper-pkg` range permits the simulated update to `1.0.1`. This smoke test disables all install scripts, so it does not test script approvals or measure attack blocking. The recorded smoke test used Windows, Node 26.12.1, and npm 11.20.0. The policy comparison remains to be verified with npm 12.2.2.
 
 ## Experiment design
 
@@ -100,6 +112,7 @@ This setup requires internet access. The planned measurement is intended to use 
 ## Repository contents
 
 - [`docs/`](docs/) — topic, rationale, plan, and seminar rubric.
+- [`sample-app/`](sample-app/) — minimal React/Vite application and dummy test data.
 - `results/` — [planned: raw measurement output for every reported run].
 - `REPORT.md` — [planned: study report, up to three pages].
 - `slides.pdf` — [planned: presentation slides].

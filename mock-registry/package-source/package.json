@@ -4,6 +4,7 @@
   "private": true,
   "description": "Pinned source dependencies for the local seminar registry.",
   "dependencies": {
+    "@vitejs/plugin-react": "6.3.0",
     "esbuild": "0.28.2",
     "husky": "9.1.7",
     "react": "19.3.1",

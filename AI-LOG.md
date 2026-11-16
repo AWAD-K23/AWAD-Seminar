@@ -94,3 +94,11 @@ is evidence you were in control.
 - Kept: Six pinned direct dependencies and their lockfile in `mock-registry/package-source/`, plus `mock-registry/download-packages.js` for downloading and verifying archives before offline measurements.
 - Changed: Reduced the initial 24-package selection to React, React DOM, Vite, esbuild, sharp, and husky. Updated the downloader to skip optional packages incompatible with the current operating system or CPU, and reformatted it with explanatory comments at the user's request. On Windows, Codex downloaded and verified 33 dependency archives, regenerated both helper fixtures, and confirmed the registry could index the resulting 35 archives (about 31.5 MiB). A later run reverified the existing downloads.
 - Rejected: Committing the large third-party tarballs was rejected in favor of online setup because the initial collection exceeded 100 MB. The six-package workload is not yet validated: an offline installation, React build, and measurement command remain to be tested or implemented. The original 25-package plan and npm policy assumptions still need revision and verification.
+
+## 2026-11-16 — Vite React app
+
+- Tool: Codex (ChatGPT).
+- Asked for: Implement Piece C by initializing a Vite React application with the reduced dependency set and dummy test data.
+- Kept: The generated React template's application files and Vite configuration, with the seminar's dummy data and dependency settings.
+- Changed: Added the template's React plugin to the pinned registry dependencies and omitted its lint and type tooling to keep the set small. The install and build succeeded with install scripts disabled.
+- Rejected: The initial hand-written app was replaced with the generated Vite template at the user's request. No network isolation or request log was captured, so the smoke test does not prove all downloads were local or validate the install-script policy.

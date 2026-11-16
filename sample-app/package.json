@@ -1,0 +1,23 @@
+{
+  "name": "seminar-sample-app",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "helper-pkg": "^1.0.0",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "6.3.0",
+    "esbuild": "0.28.2",
+    "husky": "9.1.7",
+    "sharp": "0.35.5",
+    "vite": "8.3.8"
+  }
+}

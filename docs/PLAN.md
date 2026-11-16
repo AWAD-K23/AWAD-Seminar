@@ -2,6 +2,8 @@
 
 ## Step 1: Check Your `npm` Version & Create the Repo Layout
 
+Target npm version: **12.2.2**. Verify the install-script policy behavior before running the experiment.
+
 First, make sure your team has **npm v12.0.0 or newer** (released July 2026), which is the first version that blocks unapproved install scripts by default and supports version-pinned `allowScripts`.
 
 ```sh

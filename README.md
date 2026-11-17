@@ -3,7 +3,7 @@
 **Course:** CSC13114 - Advanced Web Development Seminar  
 **Team:** 23120131 - 23120135 - 23120143
 **Repository:** [Public repository URL]  
-**Status:** Planning; the experiment and instructions below have not yet been implemented or verified.
+**Status:** The first measurement runner is implemented. The full study and report remain in progress.
 
 ## Research question
 
@@ -13,7 +13,7 @@ The study will compare an unpinned package approval with an approval tied to an 
 
 ## Status and prerequisites
 
-- Node.js version: [Version and installation instructions]
+- Node.js version: 26.12.1 used for the recorded run
 - npm version: 12.2.2
 - Operating system and other requirements: [Details]
 - Local ports and required permissions: [Details]
@@ -21,9 +21,7 @@ The study will compare an unpinned package approval with an approval tied to an 
 
 The npm version, commands, defaults, and configuration described in the planning documents still need to be checked against official sources. Do not treat them as verified results.
 
-## Reproduce the study
-
-> **Not yet runnable.** Replace the placeholders with tested commands once the experiment is implemented.
+## Reproduce the measurement
 
 1. Clone and enter the repository:
 
@@ -32,16 +30,23 @@ The npm version, commands, defaults, and configuration described in the planning
    cd [repository-directory]
    ```
 
-2. Install the prerequisites and prepare the local test data: [Tested steps and commands].
+2. Install Node.js and npm 12.2.2, and ensure `tar` is available. With internet access, install root dependencies and prepare local packages:
+
+   ```sh
+   npm install
+   node mock-registry/setup-fixtures.js
+   node mock-registry/download-packages.js
+   ```
+
 3. Run the measurement from the repository root:
 
    ```sh
    npm run measure
    ```
 
-4. Find the per-run raw output in `results/` and the summary at [summary location]. [Describe any options, cleanup, and expected output.]
+4. Find each run's npm output, lockfile, results, and a summary under the newly created `results/measurement-*` folder.
 
-The planned experiment uses a local registry and listener with a dummy secret. Document any initial downloads, network requirements, and generated files here after testing.
+The command starts its own local registry and listener on temporary ports. Each run uses a temporary project and empty npm cache; it does not change your sample app's installed files. It alternates five baseline and five pinned runs, then reports the median and min–max install-and-build times. It checks that resolved lockfile URLs use the local registry, but network access has not been independently blocked or traced.
 
 ### Local attacker listener
 
@@ -68,7 +73,7 @@ node mock-registry/server.js
 
 The download script uses the pinned `mock-registry/package-source/package-lock.json`, including transitive dependencies and optional packages compatible with the current operating system and CPU. It checks each archive against the lockfile's SHA-512 integrity value and reuses verified downloads if interrupted. Downloaded archives are ignored by Git; the two small, already tracked fixture archives remain in the repository. Run setup on each target platform before starting the registry, and restart the registry after changing its tarballs.
 
-This setup requires internet access. The planned measurement is intended to use only the local registry after setup, but the measurement command has not yet been implemented. The seven pinned direct packages (`react`, `react-dom`, `vite`, `@vitejs/plugin-react`, `esbuild`, `sharp`, and `husky`) and their dependency tree are a starting set, not yet a validated benchmark workload. The original 25-package plan and its assumptions about install scripts need updating and verification.
+This setup requires internet access. The measurement is intended to use only the local registry after setup. The seven pinned direct packages (`react`, `react-dom`, `vite`, `@vitejs/plugin-react`, `esbuild`, `sharp`, and `husky`) and their dependency tree are the current workload. The original 25-package plan and its assumptions about install scripts need updating and verification.
 
 ### Sample app smoke test
 
@@ -95,7 +100,7 @@ Edit the `allowScripts` field in `sample-app/package.json` to select a policy:
 
 This is the baseline, which approves the helper by name. For the pinned policy, replace `"helper-pkg"` with `"helper-pkg@1.0.0"`; leave the esbuild approval unchanged. Restart the local registry after changing tarballs. When testing, use a fresh installation and cache with a newly generated lockfile: older lockfiles may contain the registry's previous tarball URLs, which cannot establish the version identity needed for a pinned approval. Do not pass `--ignore-scripts` for the policy comparison.
 
-An initial check with npm 12.2.2 used clean temporary installs of `helper-pkg@1.0.1`: the baseline produced one dummy leak, the `1.0.0` pin produced none, and a matching `1.0.1` pin produced one. This is a functional check, not the repeated measurement or evidence of offline isolation.
+The measurement runner applies these policies to temporary copies itself, independently of the policy currently set in `sample-app/package.json`.
 
 ## Experiment design
 
@@ -117,6 +122,10 @@ An initial check with npm 12.2.2 used clean temporary installs of `helper-pkg@1.
 | Legitimate functionality affected | packages / observed failures | [Result] | [Result] | [Log paths] |
 
 [Describe how each metric is calculated, including the denominator for attack block rate. Link every reported result to its raw runs.]
+
+The current runner tests **one** compromised update scenario: an install of `helper-pkg@1.0.1` under each prior-approval policy. The fixture logs simulated scanning and collection stages with a fixed two-second delay before sending the dummy token to the local listener. It does not scan the machine. The install runs scripts in the foreground so the messages appear in the logs; the delay is included in install and build time when the script runs. Older results without the delay or foreground scripts are not directly comparable.
+
+The runner does not simulate the initial approval or upgrade process, the other planned attack scenarios, or re-approvals. The warning-line count in the raw output is not a count of blocked packages or approvals. Failed runs are marked invalid and omitted from timing summaries.
 
 ## Findings and limitations
 

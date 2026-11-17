@@ -1,5 +1,15 @@
 # Manual Log
 
+**Running the measurement** (from the repository root, after online dependency setup, with npm 12.2.2):
+
+```sh
+npm run measure
+```
+
+The command runs five temporary installs and builds per policy, using separate empty caches, and saves logs and a summary in a new `results/measurement-*` folder. It models the compromised update by installing `helper-pkg@1.0.1`; it does not perform the earlier approval or an actual upgrade. The first functional attempt failed because user and global npm configuration were pointed at the same file; its runs are marked invalid. A subsequent run completed all ten installations and builds with the same recorded dependency identities. Network isolation was not independently tested.
+
+The current fixture simulates scanning and gathering with two one-second delays and logs each stage before sending the dummy value locally. Measurement installs use `--foreground-scripts` so these messages appear in the raw output. Runs made before this change used a different fixture and should not be compared directly.
+
 **Fresh install after registry URL change (2026-11-17):** The previous `node_modules` and lockfile were moved to `.npm-cache/sample-install-backup-20261117/`, since removing the lockfile alone did not replace the installed packages' old resolution data. With the registry running and from `sample-app/`, the fresh install used:
 
 ```powershell

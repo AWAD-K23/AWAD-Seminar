@@ -1,0 +1,41 @@
+{
+  "npmVersion": "12.2.2",
+  "nodeVersion": "v26.12.1",
+  "platform": "win32",
+  "arch": "x64",
+  "sameDependencies": true,
+  "modes": {
+    "baseline": {
+      "validRuns": 5,
+      "totalRuns": 5,
+      "leaks": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "durationMs": {
+        "median": 15024.35,
+        "min": 12892.14,
+        "max": 16341.3
+      }
+    },
+    "pinned": {
+      "validRuns": 5,
+      "totalRuns": 5,
+      "leaks": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "durationMs": {
+        "median": 12203.25,
+        "min": 9090.58,
+        "max": 20296.9
+      }
+    }
+  }
+}

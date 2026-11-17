@@ -110,3 +110,19 @@ is evidence you were in control.
 - Kept: The baseline and pinned policies keep the esbuild approval fixed and differ only in the helper approval. The initial policy-switching script was later removed at the user's request in favor of manual editing.
 - Changed: An initial npm 12.2.2 check showed that the registry's original `/tarballs/...` URLs also caused a matching esbuild version pin to be blocked. Inspection of npm's identity matching revealed that the URLs lacked the registry-style package path needed to identify the version; the registry now serves canonical paths. Fresh installs then produced one dummy leak with name-only approval, zero with the old-version pin, and one with a matching pin.
 - Rejected: The initial zero-leak result alone was insufficient evidence that pinning worked, because even a matching esbuild pin failed. The checks used temporary installs and were not saved as benchmark logs; repeatable measurements and network isolation remain unfinished.
+
+## 2026-11-17 — Measurement runner
+
+- Tool: Codex (ChatGPT).
+- Asked for: Implement the automated measurement described in step 4 of the plan.
+- Kept: `npm run measure` creates isolated project copies and caches, alternates both policies, and saves raw output and summaries.
+- Changed: The first run failed because npm rejected one configuration file being used for both user and global settings; separate empty files resolved the error. The resulting runner was exercised with npm 12.2.2 for five runs per policy.
+- Rejected: The initial failed runs were not treated as measurements. The runner tests one simulated compromised update and does not yet measure re-approvals or independently prove network isolation.
+
+## 2026-11-17 — Simulated attack delay
+
+- Tool: Codex (ChatGPT).
+- Asked for: Add a delay and activity logs to the compromised fixture to simulate gathering the dummy secret.
+- Kept: Two fixed one-second stages and local-only dummy-token delivery; the measurement captures script messages using foreground execution.
+- Changed: Regenerated the fixture tarball and documented that the added delay is part of the measured install time when the script runs.
+- Rejected: The simulation does not scan the machine or collect real secrets. Earlier runs used a different fixture and script-output setting and are not directly comparable.

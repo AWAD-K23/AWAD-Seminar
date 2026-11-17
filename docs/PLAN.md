@@ -115,6 +115,8 @@ To earn full marks on **Criterion 1 (15 points)**, hold everything fixed (same m
 
 ## Step 4: Automate the Measurement (`npm run measure`)
 
+**Current implementation:** `npm run measure` starts isolated local services, makes temporary project copies with separate empty caches, alternates five runs per policy, and saves raw output and summaries under `results/`. It pins the test dependency to `1.0.1` in both copies and models prior approval through the policy; it does not perform a real upgrade or measure re-approvals. `blockedWarningLines` counts log lines, not blocked packages. The steps below are the original proposal and do not describe the implementation's temporary-directory approach.
+
 Write `scripts/measure.js` so that running **`npm run measure`** from the root folder automatically performs **5 cold-cache runs** for Baseline and **5 cold-cache runs** for Pinned (`10` runs total).
 
 For each individual run (`i = 1..5`), `measure.js` should do these exact 5 steps:

@@ -102,3 +102,11 @@ is evidence you were in control.
 - Kept: The generated React template's application files and Vite configuration, with the seminar's dummy data and dependency settings.
 - Changed: Added the template's React plugin to the pinned registry dependencies and omitted its lint and type tooling to keep the set small. The install and build succeeded with install scripts disabled.
 - Rejected: The initial hand-written app was replaced with the generated Vite template at the user's request. No network isolation or request log was captured, so the smoke test does not prove all downloads were local or validate the install-script policy.
+
+## 2026-11-16 — Install-script policies
+
+- Tool: Codex (ChatGPT).
+- Asked for: Set up the baseline and version-pinned policies in step 3 of the plan.
+- Kept: The baseline and pinned policies keep the esbuild approval fixed and differ only in the helper approval. The initial policy-switching script was later removed at the user's request in favor of manual editing.
+- Changed: An initial npm 12.2.2 check showed that the registry's original `/tarballs/...` URLs also caused a matching esbuild version pin to be blocked. Inspection of npm's identity matching revealed that the URLs lacked the registry-style package path needed to identify the version; the registry now serves canonical paths. Fresh installs then produced one dummy leak with name-only approval, zero with the old-version pin, and one with a matching pin.
+- Rejected: The initial zero-leak result alone was insufficient evidence that pinning worked, because even a matching esbuild pin failed. The checks used temporary installs and were not saved as benchmark logs; repeatable measurements and network isolation remain unfinished.

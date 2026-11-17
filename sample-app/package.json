@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "helper-pkg": "^1.0.0",
+    "helper-pkg": "^1.0.1",
     "react": "19.3.1",
     "react-dom": "19.3.1"
   },
@@ -19,5 +19,9 @@
     "husky": "9.1.7",
     "sharp": "0.35.5",
     "vite": "8.3.8"
+  },
+  "allowScripts": {
+    "helper-pkg@1.0.0": true,
+    "esbuild@0.28.2": true
   }
 }

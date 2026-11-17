@@ -1,5 +1,26 @@
 # Manual Log
 
+**Fresh install after registry URL change (2026-11-17):** The previous `node_modules` and lockfile were moved to `.npm-cache/sample-install-backup-20261117/`, since removing the lockfile alone did not replace the installed packages' old resolution data. With the registry running and from `sample-app/`, the fresh install used:
+
+```powershell
+node ../.npm-tools/node_modules/npm/bin/npm-cli.js install --registry=http://127.0.0.1:4002 --cache ../.npm-cache/sample-fresh-20261117 --no-audit --no-fund --fetch-retries=0
+```
+
+With the pinned policy, npm 12.2.2 blocked `helper-pkg@1.0.1` as expected and did not warn about esbuild. The new lockfile uses `/esbuild/-/esbuild-0.28.2.tgz`; an esbuild transform and production build succeeded. This is a functional check, not a benchmark.
+
+**Selecting the script policy:** Edit `allowScripts` in `sample-app/package.json`. Use `"helper-pkg": true` for the baseline or `"helper-pkg@1.0.0": true` for the pinned policy. Keep `"esbuild@0.28.2": true` in both. Use a fresh install, cache, and lockfile with the current registry URLs, and omit `--ignore-scripts` when testing the policy.
+
+An initial npm 12.2.2 check in temporary projects installed `helper-pkg@1.0.1` from the local registry: the baseline produced one dummy leak, the `1.0.0` pin produced none, and a matching `1.0.1` pin produced one. This was one functional check per policy, not a benchmark; no network isolation or raw measurement logs were captured.
+
+**Uninstalling and reinstalling `helper-pkg`** (with the local registry running, from `sample-app/`):
+
+```powershell
+npm uninstall helper-pkg --registry=http://127.0.0.1:4002 --no-audit
+npm install "helper-pkg@^1.0.0" --registry=http://127.0.0.1:4002 --no-audit
+```
+
+These commands update `package.json` and `package-lock.json`. npm can install `helper-pkg@1.0.1` even when `allowScripts` approves only `helper-pkg@1.0.0`; the policy controls whether the install script runs, not whether the package is installed. With the baseline policy, the simulated script may send the dummy value to the local listener. For a controlled comparison, use fresh installations, caches, and lockfiles.
+
 **Target npm version:** 12.2.2. The smoke test below was performed with npm 11.20.0.
 
 **Generating the React template** (from the repository root, with internet access):
@@ -54,7 +75,7 @@ $ curl http://127.0.0.1:4001/status
 {"count":0,"leakedSecrets":[]}
 ```
 
-**Accessing the `/helper-pkg` endpoint shows the tarball for the `helper-pkg` fixture:**
+**Historical output:** The following `/helper-pkg` response was captured before the registry's tarball URLs were changed to npm-style paths for version-pinned approvals. Hashes and URLs can change when fixtures are repacked.
 
 ```sh
 $ curl http://127.0.0.1:4002/helper-pkg

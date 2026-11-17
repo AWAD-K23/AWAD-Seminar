@@ -75,6 +75,8 @@ Set its dependencies to install the 24 packages plus `"helper-pkg": "^1.0.0"`. B
 
 ## Step 3: Set Up the Only Variable That Changes (Baseline vs. Change)
 
+**Current implementation:** Run `node scripts/set-policy.js baseline` or `node scripts/set-policy.js pinned` from the repository root. The policies approve `esbuild@0.28.2` in both cases and differ only in the `helper-pkg` approval. The examples below are the original plan; their package versions and package count are not the current workload. The current sharp and husky packages should not be assumed to have install scripts without checking their actual manifests.
+
 To earn full marks on **Criterion 1 (15 points)**, hold everything fixed (same machine, same 25 packages, same cold cache) and change **only** how `allowScripts` is configured in `sample-app/package.json`:
 
 1. **Baseline (`baseline` mode — unpinned allowlist):**  

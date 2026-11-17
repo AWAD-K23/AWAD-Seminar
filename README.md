@@ -80,7 +80,22 @@ npm install --registry=http://127.0.0.1:4002 --cache ../.npm-cache/sample-test -
 npm run build
 ```
 
-The app was generated from the Vite React template and adapted to use the pinned local package set; the template's lint and type packages were omitted to keep the workload small. It uses only a dummy value in its `.env`; never put real secrets there. Its `helper-pkg` range permits the simulated update to `1.0.1`. This smoke test disables all install scripts, so it does not test script approvals or measure attack blocking. The recorded smoke test used Windows, Node 26.12.1, and npm 11.20.0. The policy comparison remains to be verified with npm 12.2.2.
+The app was generated from the Vite React template and adapted to use the pinned local package set; the template's lint and type packages were omitted to keep the workload small. It uses only a dummy value in its `.env`; never put real secrets there. Its `helper-pkg` range permits the simulated update to `1.0.1`. This smoke test disables all install scripts, so it does not test script approvals or measure attack blocking. The recorded smoke test used Windows, Node 26.12.1, and npm 11.20.0.
+
+### Select an install-script policy
+
+Edit the `allowScripts` field in `sample-app/package.json` to select a policy:
+
+```json
+"allowScripts": {
+  "helper-pkg": true,
+  "esbuild@0.28.2": true
+}
+```
+
+This is the baseline, which approves the helper by name. For the pinned policy, replace `"helper-pkg"` with `"helper-pkg@1.0.0"`; leave the esbuild approval unchanged. Restart the local registry after changing tarballs. When testing, use a fresh installation and cache with a newly generated lockfile: older lockfiles may contain the registry's previous tarball URLs, which cannot establish the version identity needed for a pinned approval. Do not pass `--ignore-scripts` for the policy comparison.
+
+An initial check with npm 12.2.2 used clean temporary installs of `helper-pkg@1.0.1`: the baseline produced one dummy leak, the `1.0.0` pin produced none, and a matching `1.0.1` pin produced one. This is a functional check, not the repeated measurement or evidence of offline isolation.
 
 ## Experiment design
 

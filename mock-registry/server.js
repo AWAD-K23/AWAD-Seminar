@@ -51,6 +51,7 @@ function createAttackerListener() {
 function indexTarballs(tarballDir, origin) {
   const packages = new Map();
   const files = new Map();
+  const packageTarballs = new Map();
   const tarballs = fs.readdirSync(tarballDir)
     .filter(name => name.endsWith('.tgz'))
     .sort();
@@ -72,20 +73,23 @@ function indexTarballs(tarballDir, origin) {
       throw new Error(`Duplicate package: ${manifest.name}@${manifest.version}`);
     }
 
-    // npm uses the tarball URL and hashes to download and verify the package.
+    // npm derives the trusted package identity from a registry-style URL.
+    const archiveName = `${manifest.name.split('/').at(-1)}-${manifest.version}.tgz`;
+    const archivePath = `/${manifest.name}/-/${archiveName}`;
     versions[manifest.version] = {
       ...manifest,
       dist: {
-        tarball: `${origin}/tarballs/${encodeURIComponent(filename)}`,
+        tarball: `${origin}${archivePath}`,
         shasum: crypto.createHash('sha1').update(bytes).digest('hex'),
         integrity: `sha512-${crypto.createHash('sha512').update(bytes).digest('base64')}`,
       },
     };
     packages.set(manifest.name, versions);
     files.set(filename, file);
+    packageTarballs.set(archivePath, file);
   }
 
-  return { packages, files };
+  return { packages, files, packageTarballs };
 }
 
 // Create a small npm registry backed by the indexed local archives.
@@ -94,7 +98,16 @@ function createRegistry({
   origin = 'http://127.0.0.1:4002',
 } = {}) {
   const app = express();
-  const { packages, files } = indexTarballs(tarballDir, origin);
+  const { packages, files, packageTarballs } = indexTarballs(tarballDir, origin);
+
+  // Serve canonical registry URLs so npm can verify pinned identities.
+  app.get(/^\/(.+)\/-\/(.+\.tgz)$/, (req, res) => {
+    const file = packageTarballs.get(req.path);
+    if (!file) {
+      return res.status(404).json({ error: 'Tarball not found' });
+    }
+    res.sendFile(path.resolve(file));
+  });
 
   // Serve only tarballs indexed at startup, never arbitrary filesystem paths.
   app.get('/tarballs/:filename', (req, res) => {

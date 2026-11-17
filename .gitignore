@@ -1,5 +1,6 @@
 node_modules/
 .npm-cache/
+.npm-tools/
 mock-registry/tarballs/*.tgz
 sample-app/dist/
 sample-app/package-lock.json

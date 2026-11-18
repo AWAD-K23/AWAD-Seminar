@@ -126,3 +126,11 @@ is evidence you were in control.
 - Kept: Two fixed one-second stages and local-only dummy-token delivery; the measurement captures script messages using foreground execution.
 - Changed: Regenerated the fixture tarball and documented that the added delay is part of the measured install time when the script runs.
 - Rejected: The simulation does not scan the machine or collect real secrets. Earlier runs used a different fixture and script-output setting and are not directly comparable.
+
+## 2026-11-18 — Re-approval check
+
+- Tool: Codex (ChatGPT).
+- Asked for: Implement step 5 and record successful commands and results.
+- Kept: A separate esbuild approval and build check in the measurement runner, with raw npm output saved for both policies.
+- Changed: Used the available esbuild 0.28.2 and a simulated previous 0.28.1 approval; the current sharp package has no install lifecycle script. The pinned case needed one approval command and the build succeeded even before approval.
+- Rejected: The plan's expected two approvals and assumed build failure were not reported as results. The check does not perform an actual upgrade.

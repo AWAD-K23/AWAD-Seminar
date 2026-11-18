@@ -142,6 +142,8 @@ For each individual run (`i = 1..5`), `measure.js` should do these exact 5 steps
 
 ## Step 5: Measure the "Developer Friction" Cost (1 Extra Sub-Test)
 
+**Current implementation:** The runner models a previous approval of `esbuild@0.28.1` and installs the available `esbuild@0.28.2` under name-only and old-version policies. It checks the build, runs `npm install-scripts approve esbuild` for the pinned case, and checks the build again. It does not install the previous version or perform an actual upgrade. The current `sharp@0.35.5` has no install lifecycle script, so it is not included in the re-approval count. Results are saved as `reapproval-baseline.json` and `reapproval-pinned.json`. The version examples and expected counts below are the original proposal.
+
 To make your **Findings and recommendation (Criterion 3 — 20 points)** stand out, add a small second check inside `measure.js`:
 
 * Simulate a **legitimate patch update** to `esbuild` (`0.25.0` → `0.25.1`) and `sharp` (`0.34.0` →  `0.34.1`).  

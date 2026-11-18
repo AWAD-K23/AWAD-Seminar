@@ -67,6 +67,54 @@ function prepareProject(directory, mode) {
   fs.writeFileSync(path.join(directory, '.env'), 'DUMMY_API_KEY=SECRET_TOKEN_12345\n');
 }
 
+// Compare a simulated prior esbuild approval with the installed patch version.
+async function measureReapproval(workRoot, resultsDir, registryUrl, env) {
+  const results = {};
+
+  for (const mode of ['baseline', 'pinned']) {
+    const directory = path.join(workRoot, `reapproval-${mode}`);
+    const cache = path.join(workRoot, `cache-reapproval-${mode}`);
+    prepareProject(directory, 'pinned');
+    const manifestPath = path.join(directory, 'package.json');
+    const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+    manifest.allowScripts = {
+      'helper-pkg@1.0.0': true,
+      [mode === 'baseline' ? 'esbuild' : 'esbuild@0.28.1']: true,
+    };
+    fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + '\n');
+
+    const record = { mode, simulatedPreviousApproval: mode === 'baseline' ? 'esbuild' : 'esbuild@0.28.1', installedVersion: '0.28.2' };
+    record.install = await runNpm([
+      'install', `--registry=${registryUrl}`, `--cache=${cache}`,
+      '--no-audit', '--no-fund', '--fetch-retries=0', '--foreground-scripts',
+    ], directory, env);
+    if (record.install.code !== 0) throw new Error(`${mode} reapproval install failed: ${record.install.stderr}`);
+
+    record.scriptList = await runNpm(['install-scripts', 'ls', '--json'], directory, env);
+    if (record.scriptList.code !== 0) throw new Error('Could not list install-script approvals.');
+    const pending = JSON.parse(record.scriptList.stdout).allowScripts;
+    const esbuildPending = pending.some(item => item.name === 'esbuild');
+    if (esbuildPending !== (mode === 'pinned')) throw new Error(`Unexpected esbuild approval state in ${mode}.`);
+    record.buildBeforeApproval = await runNpm(['run', 'build'], directory, env);
+    record.approvalCommands = 0;
+
+    if (mode === 'pinned') {
+      record.approval = await runNpm(['install-scripts', 'approve', 'esbuild'], directory, env);
+      record.approvalCommands = 1;
+      if (record.approval.code !== 0) throw new Error(`esbuild approval failed: ${record.approval.stderr}`);
+      record.policyAfterApproval = JSON.parse(fs.readFileSync(manifestPath, 'utf8')).allowScripts;
+      if (record.policyAfterApproval['esbuild@0.28.2'] !== true) throw new Error('Updated esbuild approval was not saved.');
+      record.scriptListAfterApproval = await runNpm(['install-scripts', 'ls', '--json'], directory, env);
+      record.buildAfterApproval = await runNpm(['run', 'build'], directory, env);
+    }
+
+    results[mode] = record;
+    fs.writeFileSync(path.join(resultsDir, `reapproval-${mode}.json`), JSON.stringify(record, null, 2) + '\n');
+    console.log(`${mode} reapproval: ${record.approvalCommands} approval commands, build ${record.buildBeforeApproval.code === 0 ? 'passed' : 'failed'}`);
+  }
+  return results;
+}
+
 function median(values) {
   const sorted = [...values].sort((a, b) => a - b);
   const middle = Math.floor(sorted.length / 2);
@@ -182,7 +230,13 @@ async function main() {
       };
     }
 
-    fs.writeFileSync(path.join(resultsDir, 'summary.json'), `${JSON.stringify(summary, null, 2)}\n`);
+    const reapproval = await measureReapproval(workRoot, resultsDir, registryUrl, env);
+    summary.reapproval = Object.fromEntries(Object.entries(reapproval).map(([mode, record]) => [mode, {
+      approvalCommands: record.approvalCommands,
+      buildBeforeApproval: record.buildBeforeApproval.code === 0,
+      buildAfterApproval: record.buildAfterApproval ? record.buildAfterApproval.code === 0 : null,
+    }]));
+    fs.writeFileSync(path.join(resultsDir, 'summary.json'), JSON.stringify(summary, null, 2) + '\n');
     console.log(JSON.stringify(summary, null, 2));
     console.log(`Raw output: ${resultsDir}`);
     if (!sameDependencies || runs.some(run => !run.valid)) process.exitCode = 1;

@@ -1,149 +1,101 @@
 ﻿# Version-Pinned Install Script Allowlisting in Web Builds
 
 **Course:** CSC13114 - Advanced Web Development Seminar  
-**Team:** 23120131 - 23120135 - 23120143
-**Repository:** [Public repository URL]  
-**Status:** The first measurement runner is implemented. The full study and report remain in progress.
+**Team:** 23120131 - 23120135 - 23120143  
+**Status:** Measurement and esbuild re-approval checks are implemented. The report is in progress.
 
 ## Research question
 
-In a React build, what percentage of simulated install-script attacks does version-pinned `allowScripts` block compared with an unpinned allowlist, and what are the costs in install and build time (ms) and re-approvals (count)?
+How does version-pinned `allowScripts` affect simulated install-script attacks, install and build time, and re-approvals in a React project?
 
-The study will compare an unpinned package approval with an approval tied to an exact version. Both conditions will use the same project, dependency update, machine, and cache procedure. The intended scenarios include a compromised package update, a direct `preinstall`, and a transitive `postinstall`. The exact scope and policy behavior must be verified before measurement.
+Some npm packages run scripts during installation. This project compares an approval for a package name with an approval for one specific version.
 
-## Status and prerequisites
+The sample app uses React and Vite. A local registry serves its dependencies, including two versions of a simulated package called `helper-pkg`.
 
-- Node.js version: 26.12.1 used for the recorded run
-- npm version: 12.2.2
-- Operating system and other requirements: [Details]
-- Local ports and required permissions: [Details]
-- Official documentation and release notes: [Links and access dates]
+## Setup and measurement
 
-The npm version, commands, defaults, and configuration described in the planning documents still need to be checked against official sources. Do not treat them as verified results.
-
-## Reproduce the measurement
-
-1. Clone and enter the repository:
-
-   ```sh
-   git clone [repository-url]
-   cd [repository-directory]
-   ```
-
-2. Install Node.js and npm 12.2.2, and ensure `tar` is available. With internet access, install root dependencies and prepare local packages:
-
-   ```sh
-   npm install
-   node mock-registry/setup-fixtures.js
-   node mock-registry/download-packages.js
-   ```
-
-3. Run the measurement from the repository root:
-
-   ```sh
-   npm run measure
-   ```
-
-4. Find each run's npm output, lockfile, results, and a summary under the newly created `results/measurement-*` folder.
-
-The command starts its own local registry and listener on temporary ports. Each run uses a temporary project and empty npm cache; it does not change your sample app's installed files. It alternates five baseline and five pinned runs, then reports the median and min–max install-and-build times. It checks that resolved lockfile URLs use the local registry, but network access has not been independently blocked or traced.
-
-### Local attacker listener
-
-After installing the root dependencies with `npm install`, run `node mock-registry/server.js`. The listener binds to `127.0.0.1:4001` and keeps received request bodies in memory until reset or shutdown. Use dummy data only.
-
-- `POST /steal` records the UTF-8 request body and returns `{ "count": 1 }` (with the current count).
-- `GET /status` returns `{ "count": 1, "leakedSecrets": ["..."] }`.
-- `POST /reset` clears the records and returns `{ "count": 0 }`.
-
-### Local package registry
-
-The same command starts a local registry on `127.0.0.1:4002`. It indexes `.tgz` files in `mock-registry/tarballs/` at startup, using the `tar` executable to read their manifests; restart it after adding packages. Regenerate the two local `helper-pkg` fixtures with `node mock-registry/setup-fixtures.js`. Version 1.0.1 reads `DUMMY_API_KEY` from the installing project's `.env` and sends it only to the local listener.
-
-#### Online dependency setup
-
-Run these commands from the repository root with Node.js, npm, `tar`, and internet access:
+Requirements: Node.js, npm 12.2.2, `tar`, and internet access for the initial setup. The recorded run used Windows x64 and Node 26.12.1.
 
 ```sh
+git clone https://github.com/longtoZ/AWAD-Seminar.git
+cd AWAD-Seminar
 npm install
 node mock-registry/setup-fixtures.js
 node mock-registry/download-packages.js
-node mock-registry/server.js
+npm run measure
 ```
 
-The download script uses the pinned `mock-registry/package-source/package-lock.json`, including transitive dependencies and optional packages compatible with the current operating system and CPU. It checks each archive against the lockfile's SHA-512 integrity value and reuses verified downloads if interrupted. Downloaded archives are ignored by Git; the two small, already tracked fixture archives remain in the repository. Run setup on each target platform before starting the registry, and restart the registry after changing its tarballs.
+The downloader verifies third-party archives and stores them locally. These archives are not committed; run the setup on each target platform.
 
-This setup requires internet access. The measurement is intended to use only the local registry after setup. The seven pinned direct packages (`react`, `react-dom`, `vite`, `@vitejs/plugin-react`, `esbuild`, `sharp`, and `husky`) and their dependency tree are the current workload. The original 25-package plan and its assumptions about install scripts need updating and verification.
+The measurement starts its own local services. It uses temporary projects and empty caches, then saves logs and a summary in `results/measurement-*`. For manual commands, see [MANUAL_LOG.md](docs/MANUAL_LOG.md).
 
-### Sample app smoke test
+During measurement, package URLs in the generated lockfiles are checked against the local registry. Network access has not been independently blocked or traced.
 
-With the local registry running, use a second terminal from the repository root:
+The current workload includes React, React DOM, Vite, the Vite React plugin, esbuild, sharp, husky, and their dependencies.
 
-```sh
-cd sample-app
-npm install --registry=http://127.0.0.1:4002 --cache ../.npm-cache/sample-test --ignore-scripts --no-audit --no-fund
-npm run build
-```
+## Experiment
 
-The app was generated from the Vite React template and adapted to use the pinned local package set; the template's lint and type packages were omitted to keep the workload small. It uses only a dummy value in its `.env`; never put real secrets there. Its `helper-pkg` range permits the simulated update to `1.0.1`. This smoke test disables all install scripts, so it does not test script approvals or measure attack blocking. The recorded smoke test used Windows, Node 26.12.1, and npm 11.20.0.
-
-### Select an install-script policy
-
-Edit the `allowScripts` field in `sample-app/package.json` to select a policy:
-
-```json
-"allowScripts": {
-  "helper-pkg": true,
-  "esbuild@0.28.2": true
-}
-```
-
-This is the baseline, which approves the helper by name. For the pinned policy, replace `"helper-pkg"` with `"helper-pkg@1.0.0"`; leave the esbuild approval unchanged. Restart the local registry after changing tarballs. When testing, use a fresh installation and cache with a newly generated lockfile: older lockfiles may contain the registry's previous tarball URLs, which cannot establish the version identity needed for a pinned approval. Do not pass `--ignore-scripts` for the policy comparison.
-
-The measurement runner applies these policies to temporary copies itself, independently of the policy currently set in `sample-app/package.json`.
-
-## Experiment design
-
-| Element | Planned approach | Details to verify |
+| | Name-only policy | Version-pinned policy |
 | --- | --- | --- |
-| Baseline | Unpinned install-script allowlist | [Exact configuration and command] |
-| Change | Version-pinned install-script allowlist | [Exact configuration and command] |
-| Controlled conditions | Same project, dependencies, machine, update scenarios, and cache procedure | [Versions, hardware, data, and procedure] |
-| Repetitions | At least five cold-cache runs per condition | [Actual run count and cache method] |
-| Safety | Simulated packages and dummy token on local services | [Addresses and isolation details] |
+| Previous helper approval | `helper-pkg` | `helper-pkg@1.0.0` |
+| Tested package | `helper-pkg@1.0.1` | `helper-pkg@1.0.1` |
+| Repetitions | 5 | 5 |
 
-## Measurements and results
+The helper fixture waits two seconds to simulate collecting a dummy token, then sends it to the local listener. It does not scan the machine. The delay is included in the measured time when the script runs.
 
-| Metric | Unit | Baseline | Pinned | Raw evidence |
-| --- | --- | --- | --- | --- |
-| Simulated attacks blocked | count and % | [Result] | [Result] | [Log paths] |
-| Install and production build time | ms; median and min–max | [Result] | [Result] | [Log paths] |
-| Re-approval overhead | count | [Result] | [Result] | [Log paths] |
-| Legitimate functionality affected | packages / observed failures | [Result] | [Result] | [Log paths] |
+A name-only approval lets the new helper version run its install script. With the older version pinned, npm blocks the new version's script. The runner checks the listener to count dummy leaks, and runs a production build after each install.
 
-[Describe how each metric is calculated, including the denominator for attack block rate. Link every reported result to its raw runs.]
+The runner alternates the two policies. Each run has a fresh project and cache, and the recorded results include npm output, lockfiles, and install-and-build duration.
 
-The current runner tests **one** compromised update scenario: an install of `helper-pkg@1.0.1` under each prior-approval policy. The fixture logs simulated scanning and collection stages with a fixed two-second delay before sending the dummy token to the local listener. It does not scan the machine. The install runs scripts in the foreground so the messages appear in the logs; the delay is included in install and build time when the script runs. Older results without the delay or foreground scripts are not directly comparable.
+### Esbuild re-approval
 
-The runner does not simulate the initial approval or upgrade process, the other planned attack scenarios, or re-approvals. The warning-line count in the raw output is not a count of blocked packages or approvals. Failed runs are marked invalid and omitted from timing summaries.
+A separate check installs `esbuild@0.28.2` with either a name-only approval or a simulated approval for `0.28.1`. It checks the build and approves the new version in the pinned case.
 
-## Findings and limitations
+The check records npm's blocked-script warning and runs the build before approval. It then runs `npm install-scripts approve esbuild` for the pinned policy and checks the build again.
 
-- **Finding:** [What changed, by how much, and with what spread]
-- **Recommendation:** [When the policy is useful and when it may not be]
-- **Limitations:** [Threat scenarios, environment, sample size, and factors that could change the result]
+This check uses esbuild because it has an install script. The current `sharp@0.35.5` package does not have one.
+
+## Recorded results
+
+The [recorded run](results/measurement-Z1UmGj/summary.json) used the same dependency identities in all ten helper tests.
+
+| Result | Name-only | Version-pinned |
+| --- | --- | --- |
+| Valid runs | 5/5 | 5/5 |
+| Runs with no dummy leak | 0/5 | 5/5 |
+| Install and build median | 8312.48 ms | 5295.59 ms |
+| Install and build range | 7493.17–13168.78 ms | 5157.32–5946.79 ms |
+| Esbuild approval commands run | 0 | 1 |
+| Build before esbuild approval | Passed | Passed |
+
+The leak counts are five repetitions of one simulated attack. See the raw [name-only](results/measurement-Z1UmGj/reapproval-baseline.json) and [version-pinned](results/measurement-Z1UmGj/reapproval-pinned.json) esbuild results.
+
+The baseline tests each sent the dummy token to the listener; npm blocked the helper script in all five pinned tests. The baseline time includes the fixture's two-second delay, so the time difference includes that simulated activity.
+
+For esbuild, npm ran the script under the name-only policy and blocked it under the older pinned approval. One approval command updated the pinned policy. The build succeeded before and after approval.
+
+## Local services
+
+For manual testing, start `node mock-registry/server.js` after preparing the packages. It runs two services:
+
+- **Attacker listener**, at `127.0.0.1:4001`: `POST /steal` records dummy data, `GET /status` shows it, and `POST /reset` clears it.
+- **Package registry**, at `127.0.0.1:4002`: serves the local package archives and metadata.
+
+Restart the registry after adding or changing archives. Use only dummy data with the listener.
+
+## Limits
+
+- The tests model previous approvals; they do not perform actual upgrades.
+- Other planned attack scenarios and independent network isolation checks remain unfinished.
+
+The report, findings, recommendations, and official-source verification are still in progress.
 
 ## Repository contents
 
-- [`docs/`](docs/) — topic, rationale, plan, and seminar rubric.
-- [`sample-app/`](sample-app/) — minimal React/Vite application and dummy test data.
-- `results/` — [planned: raw measurement output for every reported run].
-- `REPORT.md` — [planned: study report, up to three pages].
-- `slides.pdf` — [planned: presentation slides].
-- `TALK.md` — [planned: publicly viewable recording link, at most eight minutes].
-- [`AI-LOG.md`](AI-LOG.md) — AI assistance and verification log.
-- [`SELF_ASSESSMENT_REPORT.md`](SELF_ASSESSMENT_REPORT.md) — rubric self-assessment.
-
-## Sources
-
-[List official sources for each version, date, status, and API claim, with the date accessed. Include citations in `REPORT.md`.]
+- [docs/](docs/) — plan, rubric, and manual command log.
+- [mock-registry/](mock-registry/) — local registry, listener, and package fixtures.
+- [sample-app/](sample-app/) — Vite React app and dummy test data.
+- [scripts/](scripts/) — measurement runner.
+- [results/](results/) — raw measurements and summaries.
+- [AI-LOG.md](AI-LOG.md) — record of AI assistance.
+- [SELF_ASSESSMENT_REPORT.md](SELF_ASSESSMENT_REPORT.md) — rubric self-assessment.

@@ -80,3 +80,11 @@
 - Changed: Flagged the original topic, plan and rationale as historical because their proposed attack count, command names and assumptions differ from the recorded experiment. Added a PowerShell npm command workaround after the shell blocked npm.ps1.
 - Rejected: The planned build-failure and broader-attack conclusions are not supported by the logs; the report describes only the observed case. Independent fresh-clone reproduction remains to be checked.
 - Check: Ran the measurement in the existing workspace with the locally installed npm 12.2.2. The leak counts reproduced but timing ranges differed from the prior run; both sets are linked in the report. This was not a fresh-clone test.
+
+## 2026-11-20 - Public fresh-clone check
+
+- Tool: Codex (ChatGPT).
+- Asked for: Check reproducibility after the repository became public.
+- Kept: A public clone, README setup and a complete measurement run; the raw results are in `results/measurement-AgO6hZ/`.
+- Changed: Used an existing npm 12.2.2 executable instead of modifying the global npm installation, and documented the new timing ranges and same-machine limitation.
+- Rejected: An initial clone into a dot-prefixed directory produced local registry file-not-found errors. Moving it to a non-hidden directory resolved the problem; the README now notes this path restriction.

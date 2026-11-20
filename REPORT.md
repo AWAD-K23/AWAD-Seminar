@@ -56,7 +56,14 @@ A [later run](results/measurement-oJk235/summary.json) in the existing workspace
 | Install and build, median | 9,951.40 ms | 6,976.20 ms |
 | Install and build, range | 8,983.53–14,051.08 ms | 6,696.84–8,078.00 ms |
 
-The timing ranges differed from the first set. The cause was not measured; host load and execution environment may affect elapsed time. A fresh-clone reproduction is still needed.
+The timing ranges differed from the first set. The cause was not measured; host load and execution environment may affect elapsed time.
+
+### Fresh-clone reproduction
+
+- The public repository was cloned on the same Windows machine. Dependencies and fixture archives were prepared using the README steps, with an existing npm 12.2.2 executable instead of installing npm globally.
+- The [fresh-clone logs](results/measurement-AgO6hZ/summary.json) record 5/5 valid runs per policy, the same 5/5 versus 0/5 leak counts, and the same 0 versus 1 approval-command outcomes.
+- Name-only install-and-build time: median 7,753.24 ms, range 7,537.33–8,258.35 ms. Pinned: median 5,396.30 ms, range 4,904.10–5,985.05 ms. Both medians fall within the original ranges; the pinned range extends beyond the original range.
+- The first attempt used a dot-prefixed clone directory and failed because the local registry did not serve archives from that path. Moving the clone to a normal directory allowed the same measurement to complete. This is a same-machine check, not an independent machine test.
 
 ### Esbuild re-approval check
 

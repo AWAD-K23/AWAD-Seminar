@@ -1,0 +1,53 @@
+{
+  "npmVersion": "12.2.2",
+  "nodeVersion": "v26.12.1",
+  "platform": "win32",
+  "arch": "x64",
+  "sameDependencies": true,
+  "modes": {
+    "baseline": {
+      "validRuns": 5,
+      "totalRuns": 5,
+      "leaks": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "durationMs": {
+        "median": 7753.24,
+        "min": 7537.33,
+        "max": 8258.35
+      }
+    },
+    "pinned": {
+      "validRuns": 5,
+      "totalRuns": 5,
+      "leaks": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "durationMs": {
+        "median": 5396.3,
+        "min": 4904.1,
+        "max": 5985.05
+      }
+    }
+  },
+  "reapproval": {
+    "baseline": {
+      "approvalCommands": 0,
+      "buildBeforeApproval": true,
+      "buildAfterApproval": null
+    },
+    "pinned": {
+      "approvalCommands": 1,
+      "buildBeforeApproval": true,
+      "buildAfterApproval": true
+    }
+  }
+}

@@ -2,7 +2,7 @@
 
 **Course:** CSC13114 - Advanced Web Development Seminar  
 **Team:** 23120131 - 23120135 - 23120143  
-**Status:** Measurement, esbuild re-approval checks, and a draft report are available. A fresh-clone reproduction and the talk remain to be completed.
+**Status:** Measurement, esbuild re-approval checks, a report, and a fresh-clone reproduction are available. The talk remains to be completed.
 
 ## Research question
 
@@ -17,6 +17,8 @@ The sample app uses React and Vite. A local registry serves its dependencies, in
 ## Setup and measurement
 
 Requirements: Node.js, npm 12.2.2, `tar`, and internet access for the initial setup. The recorded run used Windows x64 and Node 26.12.1.
+
+Clone into a directory whose path has no dot-prefixed components: the local registry's file server can reject archives under such paths.
 
 Check `node --version` and `npm --version` first. Install the exact npm version if needed, for example `npm install -g npm@12.2.2`, then verify `npm --version` again. Use a Node version compatible with that npm release; the recorded Node version is a known working choice. On Windows PowerShell, if execution policy blocks `npm.ps1`, use `npm.cmd` in place of `npm` in these commands.
 
@@ -78,6 +80,8 @@ The baseline tests each sent the dummy token to the listener; npm blocked the he
 
 A later [existing-workspace rerun](results/measurement-oJk235/summary.json) reproduced the leak counts, but its timing ranges were 8983.53–14051.08 ms (name-only) and 6696.84–8078 ms (pinned), outside the original ranges. The cause was not measured; timings depend on the execution environment.
 
+A [fresh public-clone run](results/measurement-AgO6hZ/summary.json) also reproduced the leak and re-approval outcomes. Its name-only median was 7753.24 ms (range 7537.33–8258.35 ms); its pinned median was 5396.30 ms (range 4904.10–5985.05 ms). Both medians fall within the original ranges, but the pinned range extends beyond them.
+
 For esbuild, npm ran the script under the name-only policy and blocked it under the older pinned approval. One approval command updated the pinned policy. The build succeeded before and after approval.
 
 ## Local services
@@ -94,7 +98,7 @@ Restart the registry after adding or changing archives. Use only dummy data with
 - The tests model previous approvals; they do not perform actual upgrades.
 - Other planned attack scenarios and independent network isolation checks remain unfinished.
 
-See [REPORT.md](REPORT.md) for the findings, recommendation, limitations, and dated sources. Reproduction from a fresh clone remains to be checked.
+See [REPORT.md](REPORT.md) for the findings, recommendation, limitations, and dated sources.
 
 ## Repository contents
 

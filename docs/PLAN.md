@@ -1,4 +1,6 @@
-# NPM 12 version-pinned allowScripts Plan
+# Defeating npm Supply-Chain Attacks: Version-Pinned allowScripts in Web Builds - plan
+
+> Historical working plan: later implementation differs from several examples and expected results below. Use [REPORT.md](../REPORT.md), [README.md](../README.md), and the raw logs for the current study. The runner does not perform an actual upgrade or test three attack vectors; the re-approval check is implemented separately.
 
 ## Step 1: Check Your `npm` Version & Create the Repo Layout
 

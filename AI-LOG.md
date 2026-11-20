@@ -1,67 +1,4 @@
-# AI-LOG.md — template
-
-Copy this file into the root of your team repository and keep it up to date.
-Every submission in this course includes it.
-
-## How to use it
-
-- One entry per task where an assistant did part of the work, and **one
-AI-LOG.md with every project milestone** (`PA#1`–`PA#5`).
-- Three honest lines are enough. This is an account, not a transcript.
-- Write it as you go. Reconstructing it the night before never reads true.
-- Declaring heavy use costs you nothing. A team that declares 80% and can
-explain all of it scores higher than a team that declares nothing and freezes
-at the oral.
-
-## The five rules, in short
-
-1. AI is allowed and encouraged in every assignment. Only the final exam is
-written without it.
-2. Declare it here.
-3. You own the code. "The AI wrote it" is not a defence.
-4. You will be asked. Anything you cannot explain scores zero, even if it runs.
-5. No secrets in prompts: no API keys, no real user data, no classmate's work.
-6. For the LLM feature inside your own product, say what data leaves your
-system and why that is acceptable.
-
-## Entry format
-
-```md
-## <YYYY-MM-DD> — <what you were working on>
-Tool: <Claude Code / Copilot / Cursor / something else / none>
-Asked for: <the task you gave it, in one sentence>
-Kept: <what you took as it came>
-Changed: <what you rewrote, and why>
-Rejected: <what you threw away, and why>
-```
-
-`Changed` and `Rejected` are the two lines we read most closely: what the assistant got wrong, and which check caught it. "Nothing went wrong" is a fine entry if it says what you ran.
-
-## A filled example
-
-```md
-## 2026-09-24 — feature spec (IA#1)
-Tool: Claude Code.
-Asked for: a first draft of the acceptance criteria from my Flow section.
-Kept: the three-way split arithmetic criterion.
-Changed: its criteria said "works correctly" — rewrote each one with concrete
-values so it can fail.
-Rejected: its refund flow. Refunds are a non-goal; I wrote that line instead.
-
-## 2026-09-25 — eval for the summarise feature
-Tool: none — the failure cases are the point of the exercise.
-```
-
-## What a weak log looks like
-
-```md
-## Week 3
-Used AI for the frontend. Fixed some things.
-```
-
-It says nothing we can check, and nothing that helps you at the oral. If a task
-took you three hours of argument with a tool, that story is worth one line — it
-is evidence you were in control.
+# AI-LOG.md
 
 ## 2026-11-16 — Seminar README
 
@@ -134,3 +71,12 @@ is evidence you were in control.
 - Kept: A separate esbuild approval and build check in the measurement runner, with raw npm output saved for both policies.
 - Changed: Used the available esbuild 0.28.2 and a simulated previous 0.28.1 approval; the current sharp package has no install lifecycle script. The pinned case needed one approval command and the build succeeded even before approval.
 - Rejected: The plan's expected two approvals and assumed build failure were not reported as results. The check does not perform an actual upgrade.
+
+## 2026-11-20 — Report and rubric review
+
+- Tool: Codex (ChatGPT).
+- Asked for: Review remaining rubric work and prepare the non-presentation deliverables.
+- Kept: A report based on the saved measurement and re-approval logs, a draft evidence table, and dated npm documentation references.
+- Changed: Flagged the original topic, plan and rationale as historical because their proposed attack count, command names and assumptions differ from the recorded experiment. Added a PowerShell npm command workaround after the shell blocked npm.ps1.
+- Rejected: The planned build-failure and broader-attack conclusions are not supported by the logs; the report describes only the observed case. Independent fresh-clone reproduction remains to be checked.
+- Check: Ran the measurement in the existing workspace with the locally installed npm 12.2.2. The leak counts reproduced but timing ranges differed from the prior run; both sets are linked in the report. This was not a fresh-clone test.

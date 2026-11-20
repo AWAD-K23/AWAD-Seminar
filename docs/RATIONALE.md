@@ -1,4 +1,6 @@
-# Rationale: Why We Chose "npm 12 Version-Pinned allowScripts"
+# Defeating npm Supply-Chain Attacks: Version-Pinned allowScripts in Web Builds - rationale
+
+> This original rationale contains unverified campaign and release claims, and predictions that were not measured. It is retained as planning history, not evidence. See [REPORT.md](../REPORT.md) for the supported study and dated sources.
 
 ## 1\. The Real-World Threat: The 2026 Supply-Chain Crisis
 

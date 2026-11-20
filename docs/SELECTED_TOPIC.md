@@ -1,4 +1,6 @@
-# Security topic options for seminar - Version-Pinned Install Script Allowlisting (`npm 12` `allowScripts`)
+# Defeating npm Supply-Chain Attacks: Version-Pinned allowScripts in Web Builds
+
+> This document defines the selected title and research question. Its implementation details are the original proposal; the current experiment differs in attack count, package count, command names and upgrade assumptions. See [REPORT.md](../REPORT.md) and [README.md](../README.md) for measured scope and results. Claims below have not all been source-verified.
 
 ## 1\. Explanation in simple words
 

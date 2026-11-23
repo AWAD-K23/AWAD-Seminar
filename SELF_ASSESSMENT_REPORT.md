@@ -1,6 +1,6 @@
 ﻿# Seminar self-assessment — draft
 
-Team: 23120131, 23120135, 23120143. Add each member's name before submission.
+Team: 23120131 - Phạm Bảo Huy, 23120135 - Trần Anh Khoa, 23120143 - Tô Thành Long
 
 The team must agree on the scores and total after completing the recording. The evidence below is a starting point, not a final claim.
 

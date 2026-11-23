@@ -4,3 +4,10 @@ node_modules/
 mock-registry/tarballs/*.tgz
 sample-app/dist/
 sample-app/package-lock.json
+
+# Keep only the result sets cited in the study and setup verification.
+/results/measurement-*/
+!/results/measurement-Z1UmGj/
+!/results/measurement-oJk235/
+!/results/measurement-AgO6hZ/
+!/results/measurement-fBa4yi/

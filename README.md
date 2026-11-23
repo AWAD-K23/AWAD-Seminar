@@ -6,7 +6,7 @@
 
 ## Research question
 
-In a 25-package React build, what percentage of simulated postinstall supply-chain attacks does npm 12’s version-pinned allowScripts block compared with unpinned allowlists, and how much build time (ms) and re-approvals (count) does it cost?
+*"In a 25-package React build, what percentage of simulated postinstall supply-chain attacks does npm 12’s version-pinned allowScripts block compared with unpinned allowlists, and how much build time (ms) and re-approvals (count) does it cost?"*
 
 The selected question describes the original planned workload. The current experiment tests one simulated attack, and its dependency count and modeled approval differ from that plan; see [REPORT.md](REPORT.md) for the exact scope and limits.
 
@@ -16,15 +16,29 @@ The sample app uses React and Vite. A local registry serves its dependencies, in
 
 ## Setup and measurement
 
-Requirements: Node.js, npm 12.2.2, `tar`, and internet access for the initial setup. The recorded run used Windows x64 and Node 26.12.1.
+Requirements: compatible Node.js (the recorded run used Node 26.12.1), npm available on PATH, `tar`, and internet access for setup. The script reuses npm 12.2.2 when found, or installs that exact version locally without changing global npm.
 
 Clone into a directory whose path has no dot-prefixed components: the local registry's file server can reject archives under such paths.
 
-Check `node --version` and `npm --version` first. Install the exact npm version if needed, for example `npm install -g npm@12.2.2`, then verify `npm --version` again. Use a Node version compatible with that npm release; the recorded Node version is a known working choice. On Windows PowerShell, if execution policy blocks `npm.ps1`, use `npm.cmd` in place of `npm` in these commands.
+After cloning, run one command from the repository:
 
 ```sh
 git clone https://github.com/longtoZ/AWAD-Seminar.git
 cd AWAD-Seminar
+node scripts/setup-and-measure.js
+```
+
+This command finds npm 12.2.2 (installing a local copy under `.npm-tools/` only if needed), installs the project dependencies from the lockfile, packs both helper versions, downloads and verifies the dependency archives, then runs all ten helper measurements and both esbuild re-approval checks. It prints the summary and the path to the raw results. It stops with a nonzero exit code if a setup command or measurement fails.
+
+Run the same command again to repeat the full process. Verified dependency archives are reused, but each measured run still uses a fresh project and empty cache. Setup time is outside the reported install-and-build measurements.
+
+Tested on Windows x64 with Node 26.12.1 on November 23, 2026, in both the existing workspace and a clean source copy with no installed dependencies, local npm, package archives or cache. Both completed all ten helper measurements and both esbuild checks. The [clean-copy summary](results/measurement-fBa4yi/summary.json) records five leaking name-only runs and zero leaking pinned runs. This was a same-machine setup check.
+
+### Manual setup (optional)
+
+If you prefer the individual steps, first make npm 12.2.2 available on PATH and verify `npm --version`. On Windows PowerShell, use `npm.cmd` if execution policy blocks `npm.ps1`.
+
+```sh
 npm install
 node mock-registry/setup-fixtures.js
 node mock-registry/download-packages.js
@@ -38,6 +52,19 @@ The measurement starts its own local services. It uses temporary projects and em
 During measurement, package URLs in the generated lockfiles are checked against the local registry. Network access has not been independently blocked or traced.
 
 The current workload includes React, React DOM, Vite, the Vite React plugin, esbuild, sharp, husky, and their dependencies.
+
+### Saved result sets
+
+The repository keeps four result sets with different purposes:
+
+| Folder | Purpose |
+| --- | --- |
+| `measurement-Z1UmGj` | Primary results used in the report and slides |
+| `measurement-oJk235` | Reported rerun showing timing variation |
+| `measurement-AgO6hZ` | Fresh public-clone reproduction |
+| `measurement-fBa4yi` | Clean-copy test of the one-command setup |
+
+New measurement folders are kept locally and ignored by Git. To publish a new result set, add an exception in `.gitignore` and cite it in the documentation. Keep the raw logs behind every reported number.
 
 ## Experiment
 

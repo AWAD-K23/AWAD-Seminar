@@ -88,3 +88,21 @@
 - Kept: A public clone, README setup and a complete measurement run; the raw results are in `results/measurement-AgO6hZ/`.
 - Changed: Used an existing npm 12.2.2 executable instead of modifying the global npm installation, and documented the new timing ranges and same-machine limitation.
 - Rejected: An initial clone into a dot-prefixed directory produced local registry file-not-found errors. Moving it to a non-hidden directory resolved the problem; the README now notes this path restriction.
+
+## 2026-11-23 - One-command setup and measurement
+
+- Tool: Codex (ChatGPT).
+- Asked for: Replace the manual setup sequence with one JavaScript command and test it.
+- Kept: The existing fixture generator, archive verification and measurement runner. `node scripts/setup-and-measure.js` runs them in order after installing project dependencies from the lockfile.
+- Changed: The command finds and reuses npm 12.2.2, or installs a local copy under `.npm-tools/`. It checks Node compatibility, `tar` and the clone path, prints progress, and stops on command failure. Fixture packing uses the selected npm CLI. README documents the one-command path and optional manual steps.
+- Rejected: The sandbox's npm 11.20.0 was not assumed to be the user's terminal version. The user reported npm 12.2.2, so the script now reuses a matching installation. No global npm change is needed. A sandboxed network attempt was interrupted after dependency downloads were denied, then tested with network access.
+- Check: Full runs in the existing workspace and a clean source copy (`results/measurement-fBa4yi/`) both completed with 5/5 valid runs per policy, five baseline leaks, zero pinned leaks, and 0 versus 1 esbuild approval commands. The clean copy started without dependencies, local npm, archives or cache. These were same-machine checks. Syntax checks, existing npm selection and rejection of dot-prefixed clone paths also passed. The redundant existing-workspace output was removed during the result cleanup below.
+
+## 2026-11-23 - Presentation content and final evidence check
+
+- Tool: Codex (ChatGPT).
+- Asked for: Create slide content from the rationale, selected topic, implementation and results, then revise the wording, illustrations and sources based on team feedback.
+- Kept: A Markdown presentation in `SLIDES.md` with simple wording, technical terms, result tables, minimal code examples, Mermaid diagrams and speaker notes. Added a reveal sequence showing how version-pinned approval stops the helper script before it sends the dummy token.
+- Changed: Added the 2026 Axios, TanStack, Red Hat/Miasma and Keyv/Cacheable attacks with visible web source URLs. Replaced the initial 2025 rationale example with the May 11, 2026 TanStack incident after the user clarified the intended timeframe. Simplified the limits, removed the separate esbuild re-approval slide, and replaced the conclusion's question-and-answer table with findings.
+- Rejected: The first setup diagram incorrectly showed the production build alongside the script approval decision. Corrected it so installation finishes before the build starts. The TanStack incident used a `prepare` script, while our fixture uses `postinstall`; the slides distinguish them and do not claim that this experiment proves protection against every full attack chain.
+- Check: Searched the web and inspected the attack sources and npm documentation. Checked the slide numbering and JSON examples. After result cleanup, verified all 30 local Markdown links across 10 documents and checked that run references point to retained folders. Deleted run names remain only in the cleanup history. Mermaid diagrams and animation notes are source content; no rendered slide deck or animation playback was verified.

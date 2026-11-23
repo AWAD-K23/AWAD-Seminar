@@ -16,9 +16,9 @@
         1
       ],
       "durationMs": {
-        "median": 15024.35,
-        "min": 12892.14,
-        "max": 16341.3
+        "median": 8614.08,
+        "min": 7676.88,
+        "max": 10550.29
       }
     },
     "pinned": {
@@ -32,10 +32,22 @@
         0
       ],
       "durationMs": {
-        "median": 12203.25,
-        "min": 9090.58,
-        "max": 20296.9
+        "median": 5745.24,
+        "min": 5259.52,
+        "max": 7790.92
       }
+    }
+  },
+  "reapproval": {
+    "baseline": {
+      "approvalCommands": 0,
+      "buildBeforeApproval": true,
+      "buildAfterApproval": null
+    },
+    "pinned": {
+      "approvalCommands": 1,
+      "buildBeforeApproval": true,
+      "buildAfterApproval": true
     }
   }
 }
